@@ -1,47 +1,57 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include "storage/disk.cpp"
 
 using namespace std;
 
-int main()
+int readFileIntoDisk(Disk *disk)
 {
-    // Set block size to 200
-    int BLOCKSIZE = 200;
-    cout << "Hello World" << endl;
-
-    // Handle File
     ifstream file("../data/data.tsv");
     if (file.is_open())
     {
-        cout << "Open" << endl;
+        cout << "File is open" << endl;
     }
     else
     {
-        cout << "Not Open" << endl;
+        cout << "File failed to open" << endl;
+        exit(EXIT_FAILURE);
     }
-
-    Disk *disk = new Disk(500);
+    Record *newRecord = nullptr;
     string line;
-    int i = 0;
+    int numRecords = 0;
+    getline(file, line);
     while (getline(file, line))
     {
-        if (i == 0)
-        {
-            i++;
-            continue;
-        }
-        disk->insert(line); // add tuple to disk
+        istringstream iss(line);
+        string tconst, averageRating, numVotes;
+        getline(iss, tconst, '\t');
+        getline(iss, averageRating, '\t');
+        getline(iss, numVotes, '\t');
+        newRecord = (*disk).insertRecord(tconst, (unsigned char)(stof(averageRating) * 10), stoi(numVotes));
+        numRecords++;
     }
     file.close();
-    // number of blocks output
-    int numBlocks = disk->getTotalBlocks();
-    cout << "Total Number of Blocks: " << numBlocks << endl;
-    // the size of database (in terms of MB)
-    int blocksize = disk->getBlockSizeinByte();
-    // cout<<"the block size is "<<blocksize;
-    float mb = (float(numBlocks * blocksize) / float(1024 * 1024));
-    cout << "Size of database (in terms of MB): " << mb << endl;
-    cout << "Program End" << endl;
+    return numRecords;
+}
+
+void exp1(Disk *disk)
+{
+    cout << "Experiment 1:" << endl;
+    int numRecords = readFileIntoDisk(disk);
+    cout << "No of records: " << numRecords << endl;
+    cout << "Size of record: " << sizeof(Record) << " bytes" << endl;
+    cout << "No of records stored in a block: " << (*disk).getRecordsPerBlock() << endl;
+    cout << "No of blocks used: " << (*disk).getBlocksUsed() << endl;
+}
+
+int main()
+{
+    // Set block size to 200B and disk size to 100MB
+    int BLOCKSIZE = 200;
+    int DISKSIZE = 100 * pow(2, 20);
+
+    Disk disk = Disk(DISKSIZE, BLOCKSIZE);
+    exp1(&disk);
 }

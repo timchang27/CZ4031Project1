@@ -1,102 +1,98 @@
-#include "block.cpp"
-#include <list>
-#include <iterator>
-#include <unordered_set>
+#include "disk.h"
+
+#include <iostream>
+#include <cmath>
+#include <cstring>
 
 using namespace std;
 
-class Disk
+Disk::Disk(size_t diskSize, size_t blockSize)
 {
-public:
-    vector<Block> blocks;
-    list<pair<int, int>> directory;
-    unordered_set<int> unoccupiedblocks;
-    int numBytes;
 
-    Disk(int numBytes)
-    {
-        this->numBytes = numBytes;
-        blocks.push_back(Block(this->numBytes));
-    }
+    this->diskSize = diskSize;
+    this->blockSize = blockSize;
 
-    void readBlock(int blockid)
-    {
-        blocks[blockid].print();
-    }
-    void readRecord(int blockid, int recordid)
-    {
-        blocks[blockid].getRecord(recordid).toString();
-    }
-    Record getRecord(int blockid, int recordid)
-    {
-        return blocks[blockid].getRecord(recordid);
-    }
+    // allocate memory on the heap
+    pMemAddress = new unsigned char[diskSize]();
 
-    void deleteRecord(int blockid, int recordid)
+    // calculate maxes
+    maxRecordsPerBlock = floor(blockSize / sizeof(Record));
+    maxBlocksPerDisk = floor(diskSize / blockSize);
+
+    // initialize indexes to 0
+    blockIdx = 0;
+    recordIdx = 0;
+    cout << "Instantiating Disk" << endl;
+    cout << " -> Disk Size: " << diskSize / pow(2, 20) << " MB" << endl;
+    cout << " -> Block Size: " << blockSize << " bytes" << endl;
+    cout << " -> Max Records Per Block: " << maxRecordsPerBlock << endl;
+    cout << " -> Max Blocks in Disk: " << maxBlocksPerDisk << endl;
+    cout << "===========================================" << endl;
+}
+
+Record *Disk::insertRecord(const string &tconst, unsigned char avgRating, int numVotes)
+{
+    // if disk is full, return nullptr
+    if (blockIdx >= maxBlocksPerDisk)
     {
-        // deletion is inefficient.
-        // assume the blockid and recordid are correct
-        blocks[blockid].deleteSlot(recordid);
-        unoccupiedblocks.insert(blockid);
-        directory.remove(make_pair(blockid, recordid));
+        return nullptr;
     }
 
-    void deleteBypointer(void *p)
+    // get pointer to the new record
+    Record *newRecord = getRecord(blockIdx, recordIdx);
+
+    // set values into the  new record
+    strncpy(newRecord->tconst, tconst.c_str(), sizeof(newRecord->tconst) - 1);
+    newRecord->numVotes = numVotes;
+    newRecord->averageRating = avgRating;
+
+    // increment recordIdx
+    recordIdx++;
+
+    // if the currentNode block is full after this insertion, move to next block and reset recordIdx to 0
+    if (recordIdx == maxRecordsPerBlock)
     {
-        auto temp = (pair<int, int> *)p;
-        deleteRecord((*temp).first, (*temp).second);
+        blockIdx++;
+        recordIdx = 0;
     }
 
-    int getTotalBlocks()
-    {
-        return blocks.size();
-    }
+    // return a pointer to the inserted record
+    return newRecord;
+}
 
-    int getBlockSizeinByte()
-    {
-        if (blocks.size() > 0)
-            return blocks.back().size;
-        else
-            return 0;
-    }
+Record *Disk::getRecord(size_t blockIdx, size_t recordIdx)
+{
+    size_t offset = (blockIdx * blockSize) + (recordIdx * sizeof(Record));
+    return reinterpret_cast<Record *>(pMemAddress + offset);
+}
 
-    void *insert(string s)
-    {
-        Record temp = Record(s);
-        while (unoccupiedblocks.size() > 0)
-        {
-            int i = *unoccupiedblocks.begin();
-            int recordIdTemp = blocks[i].add(temp);
-            if (recordIdTemp == -1)
-            {
-                unoccupiedblocks.erase(i);
-            }
-            else
-            {
-                directory.push_back(make_pair(i, recordIdTemp));
-                return &directory.back();
-            }
-        }
-        int recordId = blocks.back().add(temp);
-        if (recordId == -1)
-        {
-            blocks.push_back(Block(this->numBytes));
-            recordId = blocks.back().add(temp);
-        }
-        directory.push_back(make_pair(blocks.size() - 1, recordId));
-        return &directory.back();
-    }
+void Disk::printRecord(Record *record)
+{
+    printf("Record ID: %s \nAverage Rating: %.1f \n Number of Votes: %d\n", record->tconst, (float)record->averageRating / 10, record->numVotes);
+}
 
-    void printAllRecord()
+size_t Disk::getBlockId(Record *record)
+{
+    return (reinterpret_cast<unsigned char *>(record) - pMemAddress) / blockSize;
+}
+
+void Disk::printBlock(size_t aBlockIdx)
+{
+    cout << "Contents of Data Block (blockIdx=" << aBlockIdx << "):" << endl;
+
+    for (int i = 0; i < maxRecordsPerBlock; i++)
     {
-        cout << "size of blocks is " << blocks.size() << endl;
-        for (int i = 0; i < blocks.size(); i++)
-        {
-            blocks[i].print();
-        }
+        cout << getRecord(aBlockIdx, i)->tconst << " ";
     }
-    Block getBlock(int i)
-    {
-        return blocks[i];
-    }
-};
+    cout << endl;
+}
+
+size_t Disk::getBlocksUsed()
+{
+    return blockIdx + 1;
+}
+
+size_t Disk::getRecordsPerBlock()
+{
+    return maxRecordsPerBlock;
+}
