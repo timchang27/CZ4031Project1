@@ -1,0 +1,4 @@
+.vscode
+*.exe
+main
+.DS_Store

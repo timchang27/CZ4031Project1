@@ -11,6 +11,11 @@ struct Record
     int numVotes;
 };
 
+struct Block
+{
+    Record record;
+};
+
 class Disk
 {
 private:
