@@ -1,9 +1,5 @@
 #include "disk.h"
 
-#include <iostream>
-#include <cmath>
-#include <cstring>
-
 using namespace std;
 
 Disk::Disk(size_t diskSize, size_t blockSize)

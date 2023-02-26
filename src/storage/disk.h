@@ -3,6 +3,9 @@
 
 #include <cstddef>
 #include <string>
+#include <iostream>
+#include <cmath>
+#include <cstring>
 
 struct Record
 {
