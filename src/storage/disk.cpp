@@ -1,9 +1,5 @@
 #include "disk.h"
 
-#include <iostream>
-#include <cmath>
-#include <cstring>
-
 using namespace std;
 
 Disk::Disk(size_t diskSize, size_t blockSize)
@@ -14,6 +10,12 @@ Disk::Disk(size_t diskSize, size_t blockSize)
 
     // allocate memory on the heap
     pMemAddress = new unsigned char[diskSize]();
+
+    this->totalMemSizeUsed = 0;
+    this->allocatedBlockCount = 0;
+
+    this->rootBlockPtr = NULL;
+    this->currentBlockPtr = NULL;
 
     // calculate maxes
     maxRecordsPerBlock = floor(blockSize / sizeof(Record));
@@ -29,6 +31,106 @@ Disk::Disk(size_t diskSize, size_t blockSize)
     cout << " -> Max Blocks in Disk: " << maxBlocksPerDisk << endl;
     cout << "===========================================" << endl;
 }
+
+// bool Disk::allocateBlockStruct()
+// {
+//     // Allocate a new block and move free pointer to start of block.
+
+//     if (blockIdx < maxBlocksPerDisk)
+//     {
+//         Block *newBlock = new Block();
+//         newBlock->recordCount = 0;
+//         newBlock->rootRecord = NULL;
+//         newBlock->currentRecord = NULL;
+//         newBlock->nextFreeRecord = NULL;
+//         newBlock->nextBlock = NULL;
+
+//         if (rootBlockPtr == NULL)
+//         {
+//             rootBlockPtr = newBlock;
+//             currentBlockPtr = rootBlockPtr;
+//         }
+//         else
+//         {
+//             // currentBlockPtr = rootBlockPtr + (blockSize * allocatedBlockCount);
+//             Block *currBlock = currentBlockPtr;
+//             currBlock->nextBlock = newBlock;
+//             currentBlockPtr = newBlock;
+//         }
+
+//         allocatedBlockCount++;
+//         freeBlockCount--;
+//         totalMemSizeUsed = totalMemSizeUsed + blockSize;
+//         return true;
+//     }
+//     else
+//     {
+//         std::cout << "--- Error, out of memory for allocation ---\n";
+//         std::cout << "Total Memory Size: " << diskSize << "\n";
+//         std::cout << "Total Memory Size Used: " << totalMemSizeUsed << "\n";
+//         return false;
+//     }
+// }
+
+// struct Block *Disk::allocateRecordToMem(Record record)
+// {
+
+//     // Checking if the size of record exceeds the memory block size before allocation
+//     if (sizeof(record) > blockSize)
+//     {
+//         std::cout << "--- Error, Record size exceeds memory block size ---\n";
+//         std::cout << "Record Size: " << sizeof(record) << "\n";
+//         std::cout << "Memory Block Size: " << blockSize << "\n";
+//         return NULL;
+//     }
+//     else if ((allocatedBlockCount == 0 && freeBlockCount != 0) || (isCurrentBlockFull(sizeof(record))))
+//     {
+//         // no allocated blocks && there are still possible blocks to be allocated
+//         // current block not full
+//         bool success = allocateBlockStruct();
+
+//         if (!success)
+//         {
+//             return NULL;
+//         }
+//     }
+
+//     // Add record
+//     if (currentBlockPtr->recordCount == 0)
+//     {
+//         // root record
+//         currentBlockPtr->rootRecord = new struct Record();
+//         memcpy(currentBlockPtr->rootRecord, &record, sizeof(record));
+//         currentBlockPtr->currentRecord = currentBlockPtr->rootRecord;
+//         currentBlockPtr->nextFreeRecord = currentBlockPtr->currentRecord->next;
+//         (currentBlockPtr->recordCount)++;
+//     }
+//     else
+//     {
+//         // non root records
+//         currentBlockPtr->nextFreeRecord = new struct Record();
+//         memcpy(currentBlockPtr->nextFreeRecord, &record, sizeof(record));
+//         currentBlockPtr->currentRecord->next = currentBlockPtr->nextFreeRecord;
+//         currentBlockPtr->currentRecord = currentBlockPtr->nextFreeRecord;
+//         currentBlockPtr->nextFreeRecord = currentBlockPtr->currentRecord->next;
+//         (currentBlockPtr->recordCount)++;
+//     }
+//     return currentBlockPtr;
+// }
+
+// bool Disk::isCurrentBlockFull(std::size_t recordSize)
+// {
+
+//     if ((currentBlockPtr->recordCount * 20) >= ((int)blockSize))
+//     {
+//         // if (currentBlockPtr->recordCount==5){
+//         return true;
+//     }
+//     else
+//     {
+//         return false;
+//     }
+// }
 
 Record *Disk::insertRecord(const string &tconst, unsigned char avgRating, int numVotes)
 {
