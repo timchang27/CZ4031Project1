@@ -4,6 +4,10 @@
 #include <sstream>
 #include "storage/disk.h"
 #include "tree/tree.h"
+// #include "storage/disk.cpp"
+// #include "tree/tree_insert.cpp"
+// #include "tree/tree.cpp"
+// #include "tree/tree_search.cpp"
 
 using namespace std;
 
@@ -73,5 +77,4 @@ int main()
     exp1(&disk, &tree);
 
     exp2(&tree);
-    
 }
