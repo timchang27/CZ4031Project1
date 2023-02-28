@@ -10,15 +10,15 @@ std::vector<Record*>* Tree::searchRecord(int key){
     }
 
     Node *curNode = this->root;
-    int idx{0};
-    
+    int idx = 0;
+
     while (!curNode->isLeaf){
         idx = std::upper_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
         curNode = curNode->pointers.at(idx);
     }
 
     idx = std::lower_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
-    if (curNode->keys.at(idx) == key){
+    if (idx < curNode->keys.size() && curNode->keys.at(idx) == key){
         return &(curNode->records.at(idx));
     }
 

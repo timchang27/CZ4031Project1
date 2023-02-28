@@ -10,7 +10,7 @@ class Node {
         Node *nxtLeaf;
         std::vector<Node*> pointers;
         std::vector<int> keys;
-        std::vector<std::vector<Record*>> records;
+        std::vector< std::vector<Record*> > records;
     
     public:
         Node(bool isLeaf);
@@ -28,6 +28,7 @@ class Tree {
         Node* root;
         int maxKeys;
         int numOfNodes;
+        short blockSize;
 
     public:
         Tree(int blockSize);
@@ -37,8 +38,10 @@ class Tree {
         void setRoot(Node *node);
         int getMaxKeys();
         int getNumOfNodes();
+        int getBlockSize();
         void displayKeys(Node *node);
         int getDepth();
+        void printTree(Node *node);
         Node* searchNode(int key);
         std::vector<Record*>* searchRecord(int key);
         void insert(int key, Record *recordPtr);
