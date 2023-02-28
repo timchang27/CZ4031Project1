@@ -6,17 +6,30 @@ Node::Node(bool isLeaf){
 
 Node::~Node(){}
 
+Node* Node::getNxtLeaf(){
+    return this->nxtLeaf;
+}
+
+std::vector<int> Node::getKeys(){
+    return this->keys;
+}
+
+std::vector<Record*> Node::getRecords(int idx){
+    return this->records.at(idx);
+}
+
 Tree::Tree(int blockSize){
     this->root = nullptr;
     this->blockSize = blockSize;
     this->maxKeys = (blockSize - sizeof(int*)) / (sizeof(int) + sizeof(int*));
     this->totalNumOfNodes = 0;
-    this->depth = 1;
+    this->depth = 0;
+    this->numOfNodesAcc = 0;
 }
 
 Tree::~Tree(){}
 
-Node *Tree::getRoot(){
+Node* Tree::getRoot(){
     return this->root;
 }
 
@@ -39,6 +52,14 @@ int Tree::getDepth(){
 
 short Tree::getBlockSize(){
     return this->blockSize;
+}
+
+short Tree::getNumOfNodesAcc(){
+    return this->numOfNodesAcc;
+}
+
+void Tree::setNumOfNodesAcc(int num){
+    this->numOfNodesAcc = num;
 }
 
 void Tree::displayKeys(Node *node){

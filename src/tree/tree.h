@@ -15,6 +15,9 @@ class Node {
     public:
         Node(bool isLeaf);
         ~Node();
+        Node *getNxtLeaf();
+        std::vector<int> getKeys();
+        std::vector<Record*> getRecords(int idx);
         // void insertKey(int key);
         // void deleteKey(int key);
         // int getNumOfKeys();
@@ -29,7 +32,7 @@ class Tree {
         int totalNumOfNodes;
         int depth;
         short blockSize;
-
+        short numOfNodesAcc;
 
     public:
         Tree(int blockSize);
@@ -41,6 +44,8 @@ class Tree {
         int getTotalNumOfNodes();
         int getDepth();
         short getBlockSize();
+        short getNumOfNodesAcc();
+        void setNumOfNodesAcc(int num);
         void displayKeys(Node *node);
         void printTree(Node *node);
         Node* searchNode(int key);
