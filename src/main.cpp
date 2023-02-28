@@ -54,12 +54,18 @@ void exp2(Tree *t)
     cout << "Instantiating B+ Tree" << endl;
     cout << " -> Nodes bounded by block size of = " << t->getBlockSize() << endl;
     cout << " -> Maximum number of keys in a node: n = " << t->getMaxKeys() << endl;
-    cout << " -> Internal node max pointers to other nodes = " << t->getMaxKeys() + 1 << endl;
+    // cout << " -> Internal node max pointers to other nodes = " << t->getMaxKeys() + 1 << endl;
     cout << "Parameter N = " << t->getMaxKeys() << endl;
-    cout << "Number of levels = TBC" << endl;
+    cout << "Number of nodes = " << t->getTotalNumOfNodes() << endl;
+    cout << "Number of levels = " << t->getDepth() << endl;
     cout << "Content of Root Node:" << endl;
     t->displayKeys(t->getRoot());
     cout << endl;
+}
+
+void exp3(Tree &t){
+    vector<Record*> *result = t.searchRecord(500);
+
 }
 
 int main()

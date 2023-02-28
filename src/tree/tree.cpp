@@ -4,11 +4,17 @@ Node::Node(bool isLeaf){
     this->isLeaf = isLeaf;
 }
 
+Node::~Node(){}
+
 Tree::Tree(int blockSize){
     this->root = nullptr;
     this->blockSize = blockSize;
     this->maxKeys = (blockSize - sizeof(int*)) / (sizeof(int) + sizeof(int*));
+    this->totalNumOfNodes = 0;
+    this->depth = 1;
 }
+
+Tree::~Tree(){}
 
 Node *Tree::getRoot(){
     return this->root;
@@ -23,11 +29,15 @@ int Tree::getMaxKeys(){
     return this->maxKeys;
 }
 
-int Tree::getNumOfNodes(){
-    return this->numOfNodes;
+int Tree::getTotalNumOfNodes(){
+    return this->totalNumOfNodes;
 }
 
-int Tree::getBlockSize(){
+int Tree::getDepth(){
+    return this->depth;
+}
+
+short Tree::getBlockSize(){
     return this->blockSize;
 }
 

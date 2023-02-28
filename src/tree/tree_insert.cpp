@@ -20,7 +20,8 @@ void Tree::insert(int key, Record *recordPtr){
     if (this->root == nullptr){
         // Case 1: B+ tree not instantiated
         this->root = new Node(true);
-        this->numOfNodes++;
+        this->totalNumOfNodes++;
+        this->depth++;
         this->root->nxtLeaf = nullptr;
         this->root->keys.push_back(key);
         this->root->records.push_back(std::vector<Record *>(1,recordPtr));
@@ -67,11 +68,12 @@ void Tree::insert(int key, Record *recordPtr){
         if (parentNode == nullptr){
             // Root has been reached
             parentNode = new Node(false);
-            this->numOfNodes++;
+            this->totalNumOfNodes++;
             parentNode->keys.push_back(key);
             parentNode->pointers.push_back(curNode);
             parentNode->pointers.push_back(newNode);
             this->root = parentNode;
+            this->depth++;
             return;
         }
         else{
@@ -92,7 +94,7 @@ Node *Tree::splitLeafNode(Node *curNode){
      */
 
     Node *splitNode = new Node(true);
-    this->numOfNodes++;
+    this->totalNumOfNodes++;
 
     for (int i = 0; i < (this->maxKeys+1)/2; i++){        
         splitNode->keys.insert(splitNode->keys.begin(), curNode->keys.back());
@@ -114,7 +116,7 @@ Node *Tree::splitInternalNode(Node *curNode, int *key){
      */
 
     Node *splitNode = new Node(false);
-    this->numOfNodes++;
+    this->totalNumOfNodes++;
 
     for (int i = 0; i < this->maxKeys/2; i++){
         splitNode->keys.insert(splitNode->keys.begin(), curNode->keys.back());

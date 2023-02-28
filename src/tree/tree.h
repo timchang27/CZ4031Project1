@@ -14,8 +14,7 @@ class Node {
     
     public:
         Node(bool isLeaf);
-        Node(){}
-        ~Node(){}
+        ~Node();
         // void insertKey(int key);
         // void deleteKey(int key);
         // int getNumOfKeys();
@@ -27,20 +26,22 @@ class Tree {
     private:
         Node* root;
         int maxKeys;
-        int numOfNodes;
+        int totalNumOfNodes;
+        int depth;
         short blockSize;
+
 
     public:
         Tree(int blockSize);
-        ~Tree(){}
+        ~Tree();
         
         Node* getRoot();
         void setRoot(Node *node);
         int getMaxKeys();
-        int getNumOfNodes();
-        int getBlockSize();
-        void displayKeys(Node *node);
+        int getTotalNumOfNodes();
         int getDepth();
+        short getBlockSize();
+        void displayKeys(Node *node);
         void printTree(Node *node);
         Node* searchNode(int key);
         std::vector<Record*>* searchRecord(int key);
