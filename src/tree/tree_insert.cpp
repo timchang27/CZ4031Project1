@@ -4,10 +4,11 @@ void Tree::insert(int key, Record *recordPtr){
     /**
      * Case 0: Duplicate insertion
      * Case 1: Tree not instantiated
-     * Case 2: Inserting key to leaf node
-     *      2a: Leaf node keys < max keys
-     *      2b: Leaf node keys == max ksys
-     * 
+     * Case 2: Leaf node keys < max keys
+     * Case 3: Leaf node keys == max keys
+     * Case 3a: Parent node < max keys
+     * Case 3b: Parent node = max keys, split required
+     *
      */
 
     // Case 0: Duplicate insertion
@@ -40,12 +41,12 @@ void Tree::insert(int key, Record *recordPtr){
     }
 
     // Insert the key and record into the leaf node at the sorted index
-    // Case 2a: Child node keys < max keys. Handled implicitly.
+    // Case 2: Leaf node keys < max keys
     idx = std::upper_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
     curNode->keys.insert(curNode->keys.begin() + idx, key);
     curNode->records.insert(curNode->records.begin() + idx, std::vector<Record *>(1,recordPtr));
-    
-    // Case 2b
+
+    // Case 3: Leaf node keys == max keys
     if (curNode->keys.size() > this->maxKeys){
         Node *newNode = this->splitLeafNode(curNode);
         Node *parentNode = parentNodes.back();
@@ -54,6 +55,7 @@ void Tree::insert(int key, Record *recordPtr){
 
         while (parentNode != nullptr && parentNode->keys.size() == this->maxKeys){
             // Iteratively check if parent is not NULL and has max children
+            // Case 3b : Parent node = max keys, split required
             idx = std::upper_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
             parentNode->keys.insert(parentNode->keys.begin() + idx, key);
             parentNode->pointers.insert(parentNode->pointers.begin() + idx + 1, newNode);
@@ -77,7 +79,7 @@ void Tree::insert(int key, Record *recordPtr){
             return;
         }
         else{
-            // Parent node has less than max children, no need split
+            // Case 3a: Parent node < max keys
             idx = std::upper_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
             parentNode->keys.insert(parentNode->keys.begin() + idx, key);
             parentNode->pointers.insert(parentNode->pointers.begin() + idx + 1, newNode);

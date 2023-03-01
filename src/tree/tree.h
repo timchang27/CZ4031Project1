@@ -53,7 +53,7 @@ class Tree {
         void insert(int key, Record *recordPtr);
         Node *splitLeafNode(Node *curNode);
         Node *splitInternalNode(Node *curNode, int *key);
-        void deleteNode();
+        void deleteKey(int key);
 };
 
 #endif

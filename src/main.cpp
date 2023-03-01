@@ -112,7 +112,7 @@ void exp4(Disk *disk, Tree *tree){
     vector<int> keys;
     unsigned short lower = 30000;
     unsigned short upper = 40000;
-    int lowerIdx, upperIdx;
+    int lowerIdx, upperIdx, leafNodesAcc = 0;
     bool searching = true;
     tree->setNumOfNodesAcc(0);
 
@@ -135,6 +135,7 @@ void exp4(Disk *disk, Tree *tree){
         }
         else{
             resultNode = resultNode->getNxtLeaf();
+            leafNodesAcc++;
         }
     }
     chrono::high_resolution_clock::time_point after = chrono::high_resolution_clock::now();
@@ -165,7 +166,7 @@ void exp4(Disk *disk, Tree *tree){
     chrono::duration<double> bruteTimeTaken = chrono::duration_cast< chrono::duration<double> >(after - before);
 
     cout << "Experiment 4:" << endl;
-    cout << "Number of index blocks accessed = " << tree->getNumOfNodesAcc() << endl;
+    cout << "Number of index blocks accessed = " << tree->getNumOfNodesAcc() + leafNodesAcc << endl;
     cout << "Number of data blocks accessed = " << resultSet.size() << endl;
     cout << "Average rating = " << totalRating / result.size() << endl;
     cout << "Running time for retrieval process = " << timeTaken.count() << "s" << endl;
@@ -174,14 +175,22 @@ void exp4(Disk *disk, Tree *tree){
     cout << endl;
 }
 
+void exp5(Disk *disk, Tree *tree){
+    cout << "Experiment 5:" << endl;
+
+    int keyToDelete = 1000;
+    tree->deleteKey(1000);
+    tree->deleteKey(-1);
+}
+
 int main()
 {
     // Set block size to 200B and disk size to 100MB
     int BLOCKSIZE = 200;
     int DISKSIZE = 100 * pow(2, 20);
+    Disk disk(DISKSIZE, BLOCKSIZE);
     Tree tree(BLOCKSIZE);
 
-    Disk disk(DISKSIZE, BLOCKSIZE);
     exp1(&disk, &tree);
 
     exp2(&tree);
@@ -189,4 +198,6 @@ int main()
     exp3(&disk, &tree);
 
     exp4(&disk, &tree);
+
+    exp5(&disk, &tree);
 }
