@@ -14,8 +14,10 @@ class Node {
     
     public:
         Node(bool isLeaf);
-        Node(){}
-        ~Node(){}
+        ~Node();
+        Node *getNxtLeaf();
+        std::vector<int> getKeys();
+        std::vector<Record*> getRecords(int idx);
         // void insertKey(int key);
         // void deleteKey(int key);
         // int getNumOfKeys();
@@ -27,27 +29,31 @@ class Tree {
     private:
         Node* root;
         int maxKeys;
-        int numOfNodes;
+        int totalNumOfNodes;
+        int depth;
         short blockSize;
+        short numOfNodesAcc;
 
     public:
         Tree(int blockSize);
-        ~Tree(){}
+        ~Tree();
         
         Node* getRoot();
         void setRoot(Node *node);
         int getMaxKeys();
-        int getNumOfNodes();
-        int getBlockSize();
-        void displayKeys(Node *node);
+        int getTotalNumOfNodes();
         int getDepth();
+        short getBlockSize();
+        short getNumOfNodesAcc();
+        void setNumOfNodesAcc(int num);
+        void displayKeys(Node *node);
         void printTree(Node *node);
         Node* searchNode(int key);
         std::vector<Record*>* searchRecord(int key);
         void insert(int key, Record *recordPtr);
         Node *splitLeafNode(Node *curNode);
         Node *splitInternalNode(Node *curNode, int *key);
-        void deleteNode();
+        void deleteKey(int key);
 };
 
 #endif

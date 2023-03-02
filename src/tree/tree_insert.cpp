@@ -6,9 +6,16 @@ void Tree::insert(int key, Record *recordPtr)
     /**
      * Case 0: Duplicate insertion
      * Case 1: Tree not instantiated
+<<<<<<< HEAD
      * Case 2: Inserting key to leaf node
      *      2a: Leaf node keys < max keys
      *      2b: Leaf node keys == max ksys
+=======
+     * Case 2: Leaf node keys < max keys
+     * Case 3: Leaf node keys == max keys
+     * Case 3a: Parent node < max keys
+     * Case 3b: Parent node = max keys, split required
+>>>>>>> f8b18e9b8387d0b50889561a179f2ad71ddf7f3d
      *
      */
 
@@ -24,7 +31,8 @@ void Tree::insert(int key, Record *recordPtr)
     {
         // Case 1: B+ tree not instantiated
         this->root = new Node(true);
-        this->numOfNodes++;
+        this->totalNumOfNodes++;
+        this->depth++;
         this->root->nxtLeaf = nullptr;
         this->root->keys.push_back(key);
         this->root->records.push_back(std::vector<Record *>(1, recordPtr));
@@ -44,14 +52,21 @@ void Tree::insert(int key, Record *recordPtr)
     }
 
     // Insert the key and record into the leaf node at the sorted index
-    // Case 2a: Child node keys < max keys. Handled implicitly.
+    // Case 2: Leaf node keys < max keys
     idx = std::upper_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
     curNode->keys.insert(curNode->keys.begin() + idx, key);
+<<<<<<< HEAD
     curNode->records.insert(curNode->records.begin() + idx, std::vector<Record *>(1, recordPtr));
 
     // Case 2b
     if (curNode->keys.size() > this->maxKeys)
     {
+=======
+    curNode->records.insert(curNode->records.begin() + idx, std::vector<Record *>(1,recordPtr));
+
+    // Case 3: Leaf node keys == max keys
+    if (curNode->keys.size() > this->maxKeys){
+>>>>>>> f8b18e9b8387d0b50889561a179f2ad71ddf7f3d
         Node *newNode = this->splitLeafNode(curNode);
         Node *parentNode = parentNodes.back();
         parentNodes.pop_back();
@@ -60,6 +75,7 @@ void Tree::insert(int key, Record *recordPtr)
         while (parentNode != nullptr && parentNode->keys.size() == this->maxKeys)
         {
             // Iteratively check if parent is not NULL and has max children
+            // Case 3b : Parent node = max keys, split required
             idx = std::upper_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
             parentNode->keys.insert(parentNode->keys.begin() + idx, key);
             parentNode->pointers.insert(parentNode->pointers.begin() + idx + 1, newNode);
@@ -75,16 +91,22 @@ void Tree::insert(int key, Record *recordPtr)
         {
             // Root has been reached
             parentNode = new Node(false);
-            this->numOfNodes++;
+            this->totalNumOfNodes++;
             parentNode->keys.push_back(key);
             parentNode->pointers.push_back(curNode);
             parentNode->pointers.push_back(newNode);
             this->root = parentNode;
+            this->depth++;
             return;
         }
+<<<<<<< HEAD
         else
         {
             // Parent node has less than max children, no need split
+=======
+        else{
+            // Case 3a: Parent node < max keys
+>>>>>>> f8b18e9b8387d0b50889561a179f2ad71ddf7f3d
             idx = std::upper_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
             parentNode->keys.insert(parentNode->keys.begin() + idx, key);
             parentNode->pointers.insert(parentNode->pointers.begin() + idx + 1, newNode);
@@ -101,7 +123,7 @@ Node *Tree::splitLeafNode(Node *curNode)
      */
 
     Node *splitNode = new Node(true);
-    this->numOfNodes++;
+    this->totalNumOfNodes++;
 
     for (int i = 0; i < (this->maxKeys + 1) / 2; i++)
     {
@@ -125,7 +147,7 @@ Node *Tree::splitInternalNode(Node *curNode, int *key)
      */
 
     Node *splitNode = new Node(false);
-    this->numOfNodes++;
+    this->totalNumOfNodes++;
 
     for (int i = 0; i < this->maxKeys / 2; i++)
     {
