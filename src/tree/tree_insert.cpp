@@ -1,4 +1,5 @@
 #include "tree.h"
+#include <algorithm>
 
 void Tree::insert(int key, Record *recordPtr)
 {
@@ -37,14 +38,14 @@ void Tree::insert(int key, Record *recordPtr)
     // Find the leaf node where the key should be inserted
     while (!curNode->isLeaf)
     {
-        idx = std::lower_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
+        idx = std::upper_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
         parentNodes.push_back(curNode);
         curNode = curNode->pointers.at(idx);
     }
 
     // Insert the key and record into the leaf node at the sorted index
     // Case 2a: Child node keys < max keys. Handled implicitly.
-    idx = std::lower_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
+    idx = std::upper_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
     curNode->keys.insert(curNode->keys.begin() + idx, key);
     curNode->records.insert(curNode->records.begin() + idx, std::vector<Record *>(1, recordPtr));
 
@@ -59,7 +60,7 @@ void Tree::insert(int key, Record *recordPtr)
         while (parentNode != nullptr && parentNode->keys.size() == this->maxKeys)
         {
             // Iteratively check if parent is not NULL and has max children
-            idx = std::lower_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
+            idx = std::upper_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
             parentNode->keys.insert(parentNode->keys.begin() + idx, key);
             parentNode->pointers.insert(parentNode->pointers.begin() + idx + 1, newNode);
 
@@ -84,7 +85,7 @@ void Tree::insert(int key, Record *recordPtr)
         else
         {
             // Parent node has less than max children, no need split
-            idx = std::lower_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
+            idx = std::upper_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
             parentNode->keys.insert(parentNode->keys.begin() + idx, key);
             parentNode->pointers.insert(parentNode->pointers.begin() + idx + 1, newNode);
         }

@@ -50,6 +50,7 @@ void exp1(Disk *disk, Tree *tree)
     cout << "Size of record: " << sizeof(Record) << " bytes" << endl;
     cout << "No of records stored in a block: " << (*disk).getRecordsPerBlock() << endl;
     cout << "No of blocks used: " << (*disk).getBlocksUsed() << endl;
+    cout << "Total Memory Used: " << (*disk).getTotalUsedMemory() / pow(2, 20) << " MB" << endl;
 }
 
 void exp2(Tree *t)

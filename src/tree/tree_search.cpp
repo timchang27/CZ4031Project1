@@ -1,4 +1,5 @@
 #include "tree.h"
+#include <algorithm>
 
 Node *Tree::searchNode(int key)
 {
@@ -16,7 +17,7 @@ std::vector<Record *> *Tree::searchRecord(int key)
 
     while (!curNode->isLeaf)
     {
-        idx = std::lower_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
+        idx = std::upper_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
         curNode = curNode->pointers.at(idx);
     }
 
