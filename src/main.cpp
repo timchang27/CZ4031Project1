@@ -196,11 +196,39 @@ void exp4(Disk *disk, Tree *tree)
 
 void exp5(Disk *disk, Tree *tree)
 {
-    cout << "Experiment 5:" << endl;
-
     int keyToDelete = 1000;
+    chrono::high_resolution_clock::time_point before = chrono::high_resolution_clock::now();
     tree->deleteKey(1000);
-    tree->deleteKey(-1);
+    chrono::high_resolution_clock::time_point after = chrono::high_resolution_clock::now();
+    chrono::duration<double> timeTaken = chrono::duration_cast<chrono::duration<double>>(after - before);
+
+    int numOfBlocksAcc = 0;
+    Record *r;
+    before = chrono::high_resolution_clock::now();
+    for (int i = 0; i < disk->getBlocksUsed(); i++)
+    {
+        numOfBlocksAcc++;
+        for (int j = 0; j < disk->getRecordsPerBlock(); j++)
+        {
+            r = disk->getRecord(i, j);
+            if (r->numVotes == keyToDelete)
+            {
+                continue;
+            }
+        }
+    }
+    after = chrono::high_resolution_clock::now();
+    chrono::duration<double> bruteTimeTaken = chrono::duration_cast<chrono::duration<double>>(after - before);
+
+    cout << "Experiment 5:" << endl;
+    cout << "Number of nodes of the updated B+ Tree = " << tree->getTotalNumOfNodes() << endl;
+    cout << "Number of levels of the updated B+ Tree = " << tree->getDepth() << endl;
+    cout << "Content of Root Node of updated B+ Tree: ";
+    tree->displayKeys(tree->getRoot());
+    cout << "Running time for deletion process = " << timeTaken.count() << "s" << endl;
+    cout << "Number of data blocks accessed by brute force method = " << numOfBlocksAcc << endl;
+    cout << "Running time for deletion by brute force method = " << bruteTimeTaken.count() << "s" << endl;
+    cout << endl;
 }
 
 int main()
