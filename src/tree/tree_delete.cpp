@@ -155,7 +155,13 @@ Node *Tree::findParentNode(Node *parentNode, Node *childNode){
 void Tree::removeInternal(int key, Node *parentNode, Node *nodeToDelete){
     if (parentNode == this->root){
         if (parentNode->keys.size() == 1){
-            // TODO
+            if (parentNode->pointers.at(0) == nodeToDelete){
+                this->setRoot(parentNode->pointers.at(1));
+            }
+            else{
+                this->setRoot(parentNode->pointers.at(0));
+            }
+            return;
         }
     }
 
@@ -168,6 +174,7 @@ void Tree::removeInternal(int key, Node *parentNode, Node *nodeToDelete){
         }
     }
     parentNode->pointers.erase(parentNode->pointers.begin() + idx);
+    this->totalNumOfNodes--;
 
     // Return if the parentNode has more than the min number of keys
     if (parentNode->keys.size() >= this->maxKeys/2){
