@@ -1,0 +1,8 @@
+<<<<<<< HEAD
+.vscode
+=======
+.vscode/
+>>>>>>> a06200934d1fe6d98b50ce99d5af17f4f0a22719
+*.exe
+main
+.DS_Store
