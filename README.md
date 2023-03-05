@@ -5,5 +5,5 @@
 ### g++
 Telling the linker to link header files to respective cpp files
 ```
-g++ -o main main.cpp storage/disk.cpp tree/tree.cpp
+g++ main.cpp storage/disk.cpp tree/tree.cpp tree/tree_insert.cpp tree/tree_search.cpp tree/tree_delete.cpp -o main
 ```
