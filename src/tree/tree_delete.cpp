@@ -3,19 +3,6 @@
 
 void Tree::deleteKey(int key)
 {
-    /**
-     * Case 0: Key does not exist in the tree
-     * Case 1: Leaf node has > minimum num of keys
-     *      1a: key is not the left most key, just delete
-     *      1b: key is the left most, check if parent nodes require updating with new left most key
-     * Case 2: Leaf node has min num of keys
-     *      2a: Check neighbour node that is from same parent, borrow if neighbour meets min key req
-     *      2b: If same parent neighbour does not meet min key requirement, borrow from other neighbour
-     *      2c: If both don't meet req, merge with left neighbour (?)
-     *
-     *      2a & 2b should prioritise left neighbour if both are from same parent
-     */
-
     if (this->root == nullptr)
     {
         std::cout << "Tree is empty!" << std::endl;
@@ -140,9 +127,9 @@ void Tree::deleteKey(int key)
                 curNode->keys.erase(curNode->keys.begin());
                 curNode->records.erase(curNode->records.begin());
             }
-            parentNode->keys.erase(parentNode->keys.begin() + parentIdx - 1);
-            parentNode->pointers.erase(parentNode->pointers.begin() + parentIdx);
+
             leftNeighbour->nxtLeaf = curNode->nxtLeaf;
+            this->removeInternal(parentNode->keys.at(parentIdx - 2), parentNode, curNode);
         }
         else
         {
@@ -154,27 +141,154 @@ void Tree::deleteKey(int key)
                 rightNeighbour->keys.erase(rightNeighbour->keys.begin());
                 rightNeighbour->records.erase(rightNeighbour->records.begin());
             }
-            parentNode->keys.erase(parentNode->keys.begin() + parentIdx);
-            parentNode->pointers.erase(parentNode->pointers.begin() + parentIdx + 1);
+
             curNode->nxtLeaf = rightNeighbour->nxtLeaf;
+            this->removeInternal(parentNode->keys.at(parentIdx), parentNode, rightNeighbour);
 
-            if (!idx)
-            {
-                this->updateParentKeys(curNode, parentNode, parentIdx, parents, prevIdxs);
-            }
-        }
-
-        // After merging, check if parent node has min num of keys
-        if (parentNode->keys.size() < this->maxKeys / 2)
-        {
-            // Parent has less than min keys required for internal nodes
-            // Borrow or merge?
+            // if (!idx){
+            //     this->updateParentKeys(curNode, parentNode, parentIdx, parents, prevIdxs);
+            // }
         }
     }
 }
 
-void Tree::removeInternal(int key, Node *currentNode, Node *child)
+Node *Tree::findParentNode(Node *parentNode, Node *childNode)
 {
+    int key, idx;
+    Node *curNode = childNode;
+    while (!curNode->isLeaf)
+    {
+        curNode = curNode->pointers.front();
+    }
+    key = curNode->keys.front();
+
+    while (!parentNode->isLeaf)
+    {
+        idx = std::upper_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
+        if (parentNode->pointers.at(idx) == childNode)
+        {
+            return parentNode;
+        }
+        else
+        {
+            parentNode = parentNode->pointers.at(idx);
+        }
+    }
+
+    return nullptr;
+}
+
+void Tree::removeInternal(int key, Node *parentNode, Node *nodeToDelete)
+{
+    if (parentNode == this->root)
+    {
+        if (parentNode->keys.size() == 1)
+        {
+            if (parentNode->pointers.at(0) == nodeToDelete)
+            {
+                this->setRoot(parentNode->pointers.at(1));
+            }
+            else
+            {
+                this->setRoot(parentNode->pointers.at(0));
+            }
+            return;
+        }
+    }
+
+    // Delete the nodeToDelete
+    int idx = std::lower_bound(parentNode->keys.begin(), parentNode->keys.end(), key) - parentNode->keys.begin();
+    parentNode->keys.erase(parentNode->keys.begin() + idx);
+    for (idx = 0; idx < parentNode->pointers.size(); idx++)
+    {
+        if (parentNode->pointers[idx] == nodeToDelete)
+        {
+            break;
+        }
+    }
+    parentNode->pointers.erase(parentNode->pointers.begin() + idx);
+    this->totalNumOfNodes--;
+
+    // Return if the parentNode has more than the min number of keys
+    if (parentNode->keys.size() >= this->maxKeys / 2)
+    {
+        return;
+    }
+
+    // Find the parentNode's left and right neighbours
+    Node *ancestorNode = this->findParentNode(this->root, parentNode);
+    for (idx = 0; idx < ancestorNode->pointers.size(); idx++)
+    {
+        if (ancestorNode->pointers.at(idx) == parentNode)
+        {
+            break;
+        }
+    }
+    Node *leftNeighbour, *rightNeighbour;
+    if (idx > 0)
+    {
+        leftNeighbour = parentNode->pointers.at(idx - 1);
+        if (leftNeighbour->keys.size() > this->maxKeys / 2)
+        {
+            parentNode->keys.insert(parentNode->keys.begin(), ancestorNode->keys.at(idx - 1));
+            ancestorNode->keys[idx - 1] = leftNeighbour->keys.back();
+
+            parentNode->pointers.insert(parentNode->pointers.begin(), leftNeighbour->pointers.back());
+
+            leftNeighbour->keys.pop_back();
+            leftNeighbour->pointers.pop_back();
+        }
+    }
+
+    if (idx < ancestorNode->pointers.size() - 1)
+    {
+        rightNeighbour = ancestorNode->pointers.at(idx + 1);
+
+        if (rightNeighbour->keys.size() > this->maxKeys / 2)
+        {
+            parentNode->keys.push_back(ancestorNode->keys.at(idx));
+            parentNode->keys[idx] = rightNeighbour->keys.front();
+            rightNeighbour->keys.erase(rightNeighbour->keys.begin());
+
+            parentNode->pointers.push_back(rightNeighbour->pointers.front());
+            rightNeighbour->pointers.erase(rightNeighbour->pointers.begin());
+
+            return;
+        }
+    }
+
+    if (idx > 0)
+    {
+        leftNeighbour->keys.push_back(ancestorNode->keys.at(idx - 1));
+
+        while (parentNode->keys.size() != 0)
+        {
+            leftNeighbour->keys.push_back(parentNode->keys.front());
+        }
+
+        while (parentNode->pointers.size() != 0)
+        {
+            leftNeighbour->pointers.push_back(parentNode->pointers.front());
+        }
+
+        this->removeInternal(ancestorNode->keys.at(idx - 1), ancestorNode, parentNode);
+    }
+    else if (idx < ancestorNode->pointers.size() - 1)
+    {
+        parentNode->keys.push_back(ancestorNode->keys.at(idx));
+
+        while (rightNeighbour->keys.size() != 0)
+        {
+            parentNode->keys.push_back(rightNeighbour->keys.front());
+        }
+
+        while (rightNeighbour->pointers.size() != 0)
+        {
+            parentNode->pointers.push_back(rightNeighbour->pointers.front());
+        }
+
+        this->removeInternal(ancestorNode->keys.at(idx), ancestorNode, rightNeighbour);
+    }
 }
 
 void Tree::updateParentKeys(Node *curNode, Node *parentNode, int parentIdx, std::vector<Node *> &parents, std::vector<int> &prevIdxs)

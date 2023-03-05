@@ -54,7 +54,8 @@ class Tree {
         Node *splitLeafNode(Node *curNode);
         Node *splitInternalNode(Node *curNode, int *key);
         void deleteKey(int key);
-        void removeInternal(int key, Node *currentNode, Node *child);
+        Node *findParentNode(Node *currentNode, Node *childNode);
+        void removeInternal(int key, Node *parentNode, Node *nodeToDelete);
         void updateParentKeys(Node *curNode, Node *parentNode, int parentIdx, std::vector<Node *> &parents, std::vector<int> &prevIdxs);
 };
 
